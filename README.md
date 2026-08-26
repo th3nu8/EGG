@@ -15,7 +15,7 @@ Your objective is to crack your opponents egg by using your sword and blocking w
 Alpha 1.0 - Initial push
 
 ## Roadmap
-Alpha 2.0 - New spawn in animation
-Alpha 3.0 - Fire zone to close in
-Beta 1.0 - Add Archer and Berserker class
-Beta 2.0 - Update graphics
+- Alpha 2.0 - New spawn in animation
+- Alpha 3.0 - Fire zone to close in
+- Beta 1.0 - Add Archer and Berserker class
+- Beta 2.0 - Update graphics
