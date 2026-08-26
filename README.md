@@ -12,7 +12,7 @@ X/Square - Dash
 Your objective is to crack your opponents egg by using your sword and blocking with your shield. When a sword hits a shield the sword is blocked and cannot be used for a little bit.
 
 ## Version History
-Alpha 1.0 - Initial push
+- Alpha 1.0 - Initial push
 
 ## Roadmap
 - Alpha 2.0 - New spawn in animation
