@@ -104,6 +104,16 @@ public class EggGame implements Screen {
                             game.players[j].shieldDownTime = 3;
                         }
                     }
+                    case ARCHER: {
+                        if (game.players[i].arrow != null && !(game.players[i].arrow.arrowRectangle.overlaps(game.players[j].shieldRectangle) && game.players[j].shieldEquipped) && game.players[i].arrow.arrowRectangle.overlaps(game.players[j].eggRectangle)) {
+                            game.players[j].damage(15.0f);
+                            game.players[i].arrow = null;
+                        }
+
+                        if (game.players[i].arrow != null && (game.players[i].arrow.arrowRectangle.overlaps(game.players[j].shieldRectangle) && game.players[j].shieldEquipped)) {
+                            game.players[i].arrow = null;
+                        }
+                    }
                 }
             }
         }

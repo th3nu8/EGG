@@ -29,12 +29,16 @@ public class Egg {
     public float parryTime = 0;
     public float menuPress = 1;
     public float shieldDownTime = 0;
+    public float shootTime = 0;
+
+    Arrow arrow = null;
 
     Sprite shadowSprite;
     Sprite eggSprite;
     Sprite shieldSprite;
     Sprite swordSprite;
     Sprite axeSprite;
+    Sprite bowSprite;
     Controller controller;
     Rectangle eggRectangle;
     Rectangle shieldRectangle;
@@ -242,6 +246,32 @@ public class Egg {
             } else {
                 parryTime -= Gdx.graphics.getDeltaTime();
             }
+        } else if (Class == Constants.Class.ARCHER) {
+            if (!shieldEquipped) bowSprite.setAlpha(1.0f); else bowSprite.setAlpha(0.0f);
+            if (xVelocity > 0) {
+                if (flipped) bowSprite.flip(true, false);
+                flipped = false;
+                bowSprite.setX(eggSprite.getX() + .4f);
+            } else if (xVelocity < 0) {
+                if (!flipped) bowSprite.flip(true, false);
+                flipped = true;
+                bowSprite.setX(eggSprite.getX() + .15f);
+            }
+            bowSprite.setY(eggSprite.getY() + .3f);
+            if (arrow == null && !shieldEquipped && controller.getButton(controller.getMapping().buttonR1) && shootTime <= 0) {
+                if (bowSprite.isFlipX()) {
+                    arrow = new Arrow(true, eggSprite.getX(), eggSprite.getY());
+                } else {
+                    arrow = new Arrow(false, eggSprite.getX(), eggSprite.getY());
+                }
+                shootTime = 2.5f;
+            } else if (shootTime > 0) {
+                shootTime -= Gdx.graphics.getDeltaTime();
+            }
+            if (arrow != null) {
+                if (arrow.loop(game)) arrow = null;
+            }
+            System.out.println(bowSprite.isFlipX());
         }
     }
 
@@ -252,7 +282,17 @@ public class Egg {
             if (health <= 75) eggSprite.setRegion(health75Region);
             if (health <= 50) eggSprite.setRegion(health50Region);
             if (health <= 25) eggSprite.setRegion(health25Region);
-            if (health <= 0) eggSprite.setRegion(deadRegion);
+            if (health <= 0) {
+                eggSprite.setRegion(deadRegion);
+                switch (Class) {
+                    case SWORDSMAN:
+                        swordEquipped = false;
+                    case BERSERKER:
+                        parryTime = 100;
+                    case ARCHER:
+                        arrow = null;
+                }
+            }
         }
     }
 
@@ -264,6 +304,10 @@ public class Egg {
                 shieldSprite.draw(spriteBatch);
             }
             case BERSERKER: axeSprite.draw(spriteBatch);
+            case ARCHER: {
+                bowSprite.draw(spriteBatch);
+                shieldSprite.draw(spriteBatch);
+            }
         }
         if (game.debugToggle) {
             game.font.setColor(Color.GREEN);
@@ -282,6 +326,10 @@ public class Egg {
                 renderer.rect(shieldRectangle.x, shieldRectangle.y, shieldRectangle.width, shieldRectangle.height);
             }
             case BERSERKER: renderer.rect(axeRectangle.x, axeRectangle.y, axeRectangle.width, axeRectangle.height);
+            case ARCHER: {
+                renderer.rect(bowSprite.getX(), bowSprite.getY(), bowSprite.getWidth(), bowSprite.getHeight());
+                if (arrow !=null) renderer.rect(arrow.arrowRectangle.getX(), arrow.arrowRectangle.getY(), arrow.arrowRectangle.getWidth(), arrow.arrowRectangle.getHeight());
+            }
         }
     }
 
@@ -296,7 +344,8 @@ public class Egg {
                 shieldRectangle = new Rectangle(0.0f, 0.0f, 0.35f, 0.35f);
             }
             case ARCHER: {
-
+                bowSprite = new Sprite(Constants.bow);
+                bowSprite.setSize(0.35f, 0.35f);
             }
             case BERSERKER: {
                 axeSprite = new Sprite(Constants.axe);

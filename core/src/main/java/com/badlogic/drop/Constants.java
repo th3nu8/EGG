@@ -26,6 +26,8 @@ public class Constants {
     public static final Texture sand = new Texture("sand.jpg");
     public static final Texture logo = new Texture("logo.png");
     public static final Texture axe = new Texture("axe.png");
+    public static final Texture bow = new Texture("bow.png");
+    public static final Texture arrow = new Texture("arrow.png");
 
     public static Array<Controller> controllers = Controllers.getControllers();
 
