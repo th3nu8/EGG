@@ -25,6 +25,7 @@ public class Constants {
     public static final Texture dead = new Texture("dead.png");
     public static final Texture sand = new Texture("sand.jpg");
     public static final Texture logo = new Texture("logo.png");
+    public static final Texture axe = new Texture("axe.png");
 
     public static Array<Controller> controllers = Controllers.getControllers();
 
@@ -33,6 +34,6 @@ public class Constants {
     public enum Class {
         SWORDSMAN,
         ARCHER,
-        ROUGE
+        BERSERKER
     }
 }

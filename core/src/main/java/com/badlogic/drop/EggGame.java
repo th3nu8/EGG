@@ -84,12 +84,26 @@ public class EggGame implements Screen {
             for (int j = 0; j < game.players.length; j++) {
                 if (i == j) continue;
 
-                if (game.players[i].swordEquipped && game.players[i].swordRectangle.overlaps(game.players[j].eggRectangle) && !(game.players[j].shieldEquipped && (game.players[j].shieldRectangle.overlaps(game.players[i].swordRectangle))) && Math.abs(game.players[i].eggSprite.getY() - game.players[j].eggSprite.getY()) < 0.25) {
-                    game.players[j].damage(15.0f);
-                }
+                switch (game.players[i].Class) {
+                    case SWORDSMAN: {
+                        if (game.players[i].swordEquipped && game.players[i].swordRectangle.overlaps(game.players[j].eggRectangle) && !(game.players[j].shieldEquipped && (game.players[j].shieldRectangle.overlaps(game.players[i].swordRectangle))) && Math.abs(game.players[i].eggSprite.getY() - game.players[j].eggSprite.getY()) < 0.25) {
+                            game.players[j].damage(15.0f);
+                        }
 
-                if (game.players[i].swordRectangle.overlaps(game.players[j].shieldRectangle) && game.players[j].shieldEquipped) {
-                    game.players[i].parryTime = 2;
+                        if (game.players[i].swordRectangle.overlaps(game.players[j].shieldRectangle) && game.players[j].shieldEquipped && game.players[i].swordEquipped) {
+                            game.players[i].parryTime = 2;
+                        }
+                    }
+                    case BERSERKER: {
+                        if (game.players[i].axeRectangle.overlaps(game.players[j].eggRectangle) && !(game.players[j].shieldEquipped && (game.players[j].shieldRectangle.overlaps(game.players[i].axeRectangle))) && Math.abs(game.players[i].eggSprite.getY() - game.players[j].eggSprite.getY()) < 0.25) {
+                            game.players[j].damage(20.0f);
+                        }
+
+                        if (game.players[i].axeRectangle.overlaps(game.players[j].shieldRectangle) && game.players[j].shieldEquipped && game.players[i].parryTime <= 0) {
+                            game.players[i].parryTime = 2;
+                            game.players[j].shieldDownTime = 3;
+                        }
+                    }
                 }
             }
         }

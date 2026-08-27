@@ -1,6 +1,5 @@
 package com.badlogic.drop;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.graphics.Color;
@@ -9,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 
 import com.badlogic.gdx.math.Rectangle;
@@ -29,15 +27,19 @@ public class Egg {
     public float iframes;
     public float health = 100;
     public float parryTime = 0;
+    public float menuPress = 1;
+    public float shieldDownTime = 0;
 
     Sprite shadowSprite;
     Sprite eggSprite;
     Sprite shieldSprite;
     Sprite swordSprite;
+    Sprite axeSprite;
     Controller controller;
     Rectangle eggRectangle;
     Rectangle shieldRectangle;
     Rectangle swordRectangle;
+    Rectangle axeRectangle;
     Color color;
     Constants.Class Class;
     BitmapFont font;
@@ -52,15 +54,9 @@ public class Egg {
     public Egg(Controller controller, Color color, Constants.Class Class, Main game) {
         shadowSprite = new Sprite(Constants.shadowTexture);
         eggSprite = new Sprite(Constants.eggTexture);
-        shieldSprite = new Sprite(Constants.shieldTexture);
-        swordSprite = new Sprite(Constants.swordTexture);
         eggSprite.setSize(0.9f, 0.9f);
         shadowSprite.setSize(0.5f, 0.5f);
-        shieldSprite.setSize(0.35f, 0.35f);
-        swordSprite.setSize(0.8f, 0.5f);
         eggRectangle = new Rectangle(0, 0f, 0.35f, 0.5f);
-        shieldRectangle = new Rectangle(0.0f, 0.0f, 0.35f, 0.35f);
-        swordRectangle = new Rectangle(0.0f, 0.0f, 0.8f, 0.2f);
         this.controller = controller;
         this.color = color;
         this.Class = Class;
@@ -93,7 +89,7 @@ public class Egg {
             float delta = Gdx.graphics.getDeltaTime();
             eggSprite.setColor(color);
             movement(delta);
-            sword();
+            attack();
             shadow(spriteBatch, delta);
 
             if (iframes > 0) {
@@ -116,7 +112,7 @@ public class Egg {
             maxVelocity = 1.5f;
         } else if (Class == Constants.Class.ARCHER) {
             maxVelocity = 2.5f;
-        } else if (Class == Constants.Class.ROUGE) {
+        } else if (Class == Constants.Class.BERSERKER) {
             maxVelocity = 3.5f;
         }
 
@@ -174,21 +170,31 @@ public class Egg {
         eggSprite.setY(MathUtils.clamp(eggSprite.getY(), 0, 8));
 
         eggRectangle.setCenter(eggSprite.getBoundingRectangle().getCenter(new Vector2()));
-        swordRectangle.setCenter(swordSprite.getBoundingRectangle().getCenter(new Vector2()));
-        shieldRectangle.setCenter(shieldSprite.getBoundingRectangle().getCenter(new Vector2()));
+        switch (Class) {
+            case SWORDSMAN : {
+                swordRectangle.setCenter(swordSprite.getBoundingRectangle().getCenter(new Vector2()));
+                shieldRectangle.setCenter(shieldSprite.getBoundingRectangle().getCenter(new Vector2()));
+            }
+            case BERSERKER: axeRectangle.setCenter(axeSprite.getBoundingRectangle().getCenter(new Vector2()));
+        }
     }
 
     public void shield() {
-        if (Class == Constants.Class.SWORDSMAN) {
-
-            if (controller.getButton(controller.getMapping().buttonL1)) {
-                xVelocity = Math.round(xVelocity / 4 * 10f) / 10f;
-                yVelocity = Math.round(yVelocity / 4 * 10f) / 10f;
-                xVelocity = Math.round(xVelocity * 4f) / 4f;
-                yVelocity = Math.round(yVelocity * 4f) / 4f;
-                shieldSprite.setAlpha(1.0f);
-                shieldEquipped = true;
+        if (Class != Constants.Class.BERSERKER) {
+            if (shieldDownTime <= 0) {
+                if (controller.getButton(controller.getMapping().buttonL1)) {
+                    xVelocity = Math.round(xVelocity / 4 * 10f) / 10f;
+                    yVelocity = Math.round(yVelocity / 4 * 10f) / 10f;
+                    xVelocity = Math.round(xVelocity * 4f) / 4f;
+                    yVelocity = Math.round(yVelocity * 4f) / 4f;
+                    shieldSprite.setAlpha(1.0f);
+                    shieldEquipped = true;
+                } else {
+                    shieldSprite.setAlpha(0.0f);
+                    shieldEquipped = false;
+                }
             } else {
+                shieldDownTime -= Gdx.graphics.getDeltaTime();
                 shieldSprite.setAlpha(0.0f);
                 shieldEquipped = false;
             }
@@ -201,7 +207,7 @@ public class Egg {
         }
     }
 
-    public void sword() {
+    public void attack() {
         if (Class == Constants.Class.SWORDSMAN) {
             if (controller.getButton(controller.getMapping().buttonR1) && !shieldEquipped && parryTime <= 0) {
                 swordSprite.setAlpha(1.0f);
@@ -225,6 +231,17 @@ public class Egg {
                 }
             }
             swordSprite.setY(eggSprite.getY() + 0.18f);
+        } else if (Class == Constants.Class.BERSERKER) {
+            axeSprite.setOrigin(0f, .2f);
+            axeSprite.setRotation((float) Math.toDegrees(Math.atan2(-controller.getAxis(controller.getMapping().axisRightY), controller.getAxis(controller.getMapping().axisRightX))));
+            axeSprite.setX(eggSprite.getX() + .45f);
+            axeSprite.setY(eggSprite.getY() + .25f);
+
+            if (parryTime <= 0) {
+                axeSprite.setAlpha(1.0f);
+            } else {
+                parryTime -= Gdx.graphics.getDeltaTime();
+            }
         }
     }
 
@@ -241,8 +258,13 @@ public class Egg {
 
     public void draw(SpriteBatch spriteBatch) {
         eggSprite.draw(spriteBatch);
-        shieldSprite.draw(spriteBatch);
-        swordSprite.draw(spriteBatch);
+        switch (Class) {
+            case SWORDSMAN: {
+                swordSprite.draw(spriteBatch);
+                shieldSprite.draw(spriteBatch);
+            }
+            case BERSERKER: axeSprite.draw(spriteBatch);
+        }
         if (game.debugToggle) {
             game.font.setColor(Color.GREEN);
             game.font.draw(spriteBatch, health + "/100", eggSprite.getBoundingRectangle().getCenter(new Vector2()).x - eggSprite.getWidth() / 2, eggSprite.getY() + eggSprite.getHeight());
@@ -253,8 +275,37 @@ public class Egg {
         renderer.setColor(Color.GREEN);
         renderer.rect(eggRectangle.x, eggRectangle.y, eggRectangle.width, eggRectangle.height);
         renderer.setColor(Color.RED);
-        renderer.rect(swordRectangle.x, swordRectangle.y, swordRectangle.width, swordRectangle.height);
-        renderer.setColor(Color.BLUE);
-        renderer.rect(shieldRectangle.x, shieldRectangle.y, shieldRectangle.width, shieldRectangle.height);
+        switch (Class) {
+            case SWORDSMAN: {
+                renderer.rect(swordRectangle.x, swordRectangle.y, swordRectangle.width, swordRectangle.height);
+                renderer.setColor(Color.BLUE);
+                renderer.rect(shieldRectangle.x, shieldRectangle.y, shieldRectangle.width, shieldRectangle.height);
+            }
+            case BERSERKER: renderer.rect(axeRectangle.x, axeRectangle.y, axeRectangle.width, axeRectangle.height);
+        }
+    }
+
+    public void updateClass() {
+        switch (Class) {
+            case SWORDSMAN: {
+                swordSprite = new Sprite(Constants.swordTexture);
+                swordSprite.setSize(0.8f, 0.5f);
+                swordRectangle = new Rectangle(0.0f, 0.0f, 0.8f, 0.2f);
+                shieldSprite = new Sprite(Constants.shieldTexture);
+                shieldSprite.setSize(0.35f, 0.35f);
+                shieldRectangle = new Rectangle(0.0f, 0.0f, 0.35f, 0.35f);
+            }
+            case ARCHER: {
+
+            }
+            case BERSERKER: {
+                axeSprite = new Sprite(Constants.axe);
+                axeSprite.setSize(0.5f, 0.35f);
+                axeRectangle = new Rectangle(0.0f, 0.0f, 0.35f, 0.35f);
+                shieldSprite = new Sprite(Constants.shieldTexture);
+                shieldSprite.setSize(0.35f, 0.35f);
+                shieldRectangle = new Rectangle(0.0f, 0.0f, 0.35f, 0.35f);
+            }
+        }
     }
 }
