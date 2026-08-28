@@ -28,6 +28,13 @@ public class Constants {
     public static final Texture axe = new Texture("axe.png");
     public static final Texture bow = new Texture("bow.png");
     public static final Texture arrow = new Texture("arrow.png");
+    public static final Texture nest = new Texture("nest.png");
+    public static final Texture eagle = new Texture("eagle.png");
+    public static final Texture topHat = new Texture("TopHat.png");
+    public static final Texture viking = new Texture("Viking.png");
+    public static final Texture glasses = new Texture("Glasses.png");
+    public static final Texture mustache = new Texture("Mustache.png");
+    public static final Texture ballCap = new Texture("BallCap.png");
 
     public static Array<Controller> controllers = Controllers.getControllers();
 

@@ -3,17 +3,17 @@ package com.badlogic.drop;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 
 public class Arrow {
     Sprite arrowSprite;
     Rectangle arrowRectangle;
     boolean dir;
-    float velocity;
+    float xVelocity;
     float height;
     float gravity;
+    float yVelocity;
 
-    public Arrow(boolean direction, float xPos, float yPos) {
+    public Arrow(boolean direction, float xPos, float yPos, float yV) {
         arrowSprite = new Sprite(Constants.arrow);
         arrowSprite.setSize(.35f, .15f);
         arrowSprite.setY(yPos + .35f);
@@ -22,18 +22,21 @@ public class Arrow {
         arrowRectangle.setSize(.25f, .05f);
 
         dir = direction;
-        velocity = 5.0f;
-        height = .25f;
+        xVelocity = 10.0f;
+        height = .15f;
         gravity = 0.1f;
+        yVelocity = yV;
     }
 
     public boolean loop(Main game) {
         if (!dir) {
-            arrowSprite.setX(arrowSprite.getX() + velocity * Gdx.graphics.getDeltaTime());
+            arrowSprite.setX(arrowSprite.getX() + xVelocity * Gdx.graphics.getDeltaTime());
+            arrowSprite.setY(arrowSprite.getY() + yVelocity/3 * Gdx.graphics.getDeltaTime());
             height -= gravity * Gdx.graphics.getDeltaTime();
         } else {
             arrowSprite.flip(true, false);
-            arrowSprite.setX(arrowSprite.getX() - velocity * Gdx.graphics.getDeltaTime());
+            arrowSprite.setX(arrowSprite.getX() - xVelocity * Gdx.graphics.getDeltaTime());
+            arrowSprite.setY(arrowSprite.getY() + yVelocity/3 * Gdx.graphics.getDeltaTime());
             height -= gravity * Gdx.graphics.getDeltaTime();
         }
         arrowSprite.draw(game.spriteBatch);
